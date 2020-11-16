@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!--
+  To run the samples:
+
+    mvn package exec:exec -DHelloWorldWrite -Dbigtable.projectID=<projectID> -Dbigtable.instanceID=<instanceID> -Dgs=<Your bucket>
+
+    mvn package exec:exec -DSourceRowCount -Dbigtable.projectID=<projectID> -Dbigtable.instanceID=<instanceID> -Dgs=<Your bucket>
+
+    mvn package exec:exec -DPubsubWordCount -Dbigtable.projectID=<projectID> -Dbigtable.instanceID=<instanceID> -Dgs=<Your bucket> -DpubsubTopic=projects/ProjectID/topics/TopicID
+
+    Optional Arguments
+      -Dbigtable.table=<Table to Read / Write>
+-->
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.google.cloud.bigtable.dataflow</groupId>
+	<artifactId>dataflow-connector-examples</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <!-- Parent POM defines common plugins and properties.
+       TODO: use the parent when this sample passes checkstyles.
+       See: https://github.com/GoogleCloudPlatform/cloud-bigtable-examples/issues/59
+  <parent>
+    <groupId>com.google.cloud</groupId>
+    <artifactId>bigtable-samples</artifactId>
+    <version>1.0.0</version>
+    <relativePath>..</relativePath>
+  </parent>
+  -->
+
+  <properties>
+    <beam.version>2.4.0</beam.version>
+    <bigtable.version>1.4.0</bigtable.version>
+    <slf4j.version>1.7.21</slf4j.version>
+
+    <bigtable.table>Dataflow_test</bigtable.table>
+    <inputFile></inputFile>
+    <region>us-central1</region>
+    <network>default</network>
+    <subnetwork></subnetwork>
+    <serviceAccount></serviceAccount>
+    <usePublicIps>true</usePublicIps>
+    <headers></headers>
+    <bq.query>SELECT year, month, day, wikimedia_project, language, title, views FROM `bigquery-samples.wikipedia_benchmark.Wiki1M` limit 1000000</bq.query>
+    <pubsubTopic>projects/${bigtable.projectID}/topics/shakes</pubsubTopic>
+    <bigtable.hbase.version>${bigtable.version}</bigtable.hbase.version>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+     <java.version>1.7</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <dependencies>
+     <dependency>
+       <groupId>org.apache.beam</groupId>
+       <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
+       <version>${beam.version}</version>
+    </dependency>
+
+    <!-- [START bigtable_dataflow_connector_dep] -->
+    <dependency>
+        <groupId>com.google.cloud.bigtable</groupId>
+        <artifactId>bigtable-hbase-beam</artifactId>
+        <version>1.11.0</version>
+    </dependency>
+    <!-- [END bigtable_dataflow_connector_dep] -->
+
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+
+ </dependencies>
+
+  <profiles>  <!-- These are only required for runlocal -->
+    <profile>
+      <id>Test</id>
+        <activation>
+            <property>
+                <name>Test</name>
+            </property>
+        </activation>
+        <build>
+          <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>/bin/echo</executable>
+              <arguments>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--stagingLocation=${gs}/staging</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+          </plugins>
+        </build>
+    </profile>
+
+    <profile>
+      <id>HelloWorldWrite</id>
+        <activation>
+            <property>
+                <name>HelloWorldWrite</name>
+            </property>
+        </activation>
+        <build>
+          <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.google.cloud.bigtable.dataflow.example.HelloWorldWrite</argument>
+                <argument>--runner=dataflow</argument>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--stagingLocation=${gs}/staging</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+      <id>CsvImport</id>
+        <activation>
+            <property>
+                <name>CsvImport</name>
+            </property>
+        </activation>
+        <build>
+          <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.google.cloud.bigtable.dataflow.example.CsvImport</argument>
+                <argument>--runner=dataflow</argument>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--inputFile=${inputFile}</argument>
+                <argument>--headers=${headers}</argument>
+                <argument>--region=${region}</argument>
+                <argument>--network=${network}</argument>
+                <argument>--subnetwork=${subnetwork}</argument>
+                <argument>--serviceAccount=${serviceAccount}</argument>
+                <argument>--usePublicIps=${usePublicIps}</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+      <id>SourceRowCount</id>
+        <activation>
+            <property>
+                <name>SourceRowCount</name>
+            </property>
+        </activation>
+        <build>
+          <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.google.cloud.bigtable.dataflow.example.SourceRowCount</argument>
+                <argument>--runner=dataflow</argument>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--stagingLocation=${gs}/staging</argument>
+                <argument>--resultLocation=${gs}/count</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+      <id>PubsubWordCount</id>
+        <activation>
+            <property>
+                <name>PubsubWordCount</name>
+            </property>
+        </activation>
+        <build>
+          <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.google.cloud.bigtable.dataflow.example.PubsubWordCount</argument>
+                <argument>--runner=dataflow</argument>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--stagingLocation=${gs}/staging</argument>
+                <argument>--inputFile=gs://lesv-big-public-data/books/b100</argument>
+                <argument>--pubsubTopic=${pubsubTopic}</argument>
+             </arguments>
+            </configuration>
+          </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+      <id>BigQueryBigtableTransfer</id>
+      <activation>
+        <property>
+          <name>BigQueryBigtableTransfer</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.4.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.google.cloud.bigtable.dataflow.example.BigQueryBigtableTransfer</argument>
+                <argument>--runner=dataflow</argument>
+                <argument>--project=${bigtable.projectID}</argument>
+                <argument>--bigtableProjectId=${bigtable.projectID}</argument>
+                <argument>--bigtableInstanceId=${bigtable.instanceID}</argument>
+                <argument>--bigtableTableId=${bigtable.table}</argument>
+                <argument>--bqQuery=${bq.query}</argument>
+                <argument>--stagingLocation=${gs}/staging</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.example.bigtable.sample.WordCountDriver</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>
