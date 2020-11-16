@@ -21,6 +21,9 @@
 # 2. either given --project NAME or gcloud config set project XXXXX
 # 3. have created a Cloud Bigtable Instance
 
+# Small adjustment for jvm 
+export JAVA_HOME=$(update-alternatives --list java | tail -1 | sed -E 's/\/bin\/java//')
+
 # Prequsites: gcloud, mvn, Java
 
 beta="beta"
