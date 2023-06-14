@@ -32,6 +32,10 @@ cbt ls fires
 
 # Upload dataloader.py & forestfires.csv files to Google Cloud Shell
 
+curl https://raw.githubusercontent.com/ACloudGuru-Resources/Course_Google_Certified_Professional_Data_Engineer/master/Demos/dataloader.py -O
+
+curl https://raw.githubusercontent.com/ACloudGuru-Resources/Course_Google_Certified_Professional_Data_Engineer/master/Demos/forestfires.csv -O
+
 vim dataloader.py
 
 # Update your project name:
