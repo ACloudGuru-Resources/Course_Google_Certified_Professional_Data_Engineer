@@ -8,7 +8,7 @@
 5. Password: click 'GENERATE' and save it somewhere else
 6. Choose a Cloud SQL edition: 'Enterprise'
 7. Choose a preset for this edition. Presets can be customized later as needed: 'Sandbox'
-8. Click 'CREATE INSTANCE'
+8. Click 'CREATE INSTANCE' and wait until your instance is in a 'runnable' state
 9. Launch your Cloud Shell by clicking 'Activate Cloud Shell' at the top of the Google Cloud console
 10. Download the 'forumdb.sql' file from the RESOURCES section of the lesson to your computer and unzip it
 11. From your Cloud Shell terminal, click 'More' > 'Upload'
