@@ -11,7 +11,7 @@
 8. Click 'CREATE INSTANCE'
 9. Launch your Cloud Shell by clicking 'Activate Cloud Shell' at the top of the Google Cloud console
 10. Download the 'forumdb.sql' file from the RESOURCES section of the lesson to your computer and unzip it
-11. From your Cloud Shell terminal, click 'More' > 'UPLOAD FILE'
+11. From your Cloud Shell terminal, click 'More' > 'Upload'
 12. Select the 'forumdb.sql' file that you just saved on your computer and click 'UPLOAD'
 13. Type 'gcloud sql connect forumdb --user=root'
 14. Type 'y' to enable the sqladmin.googleapis.com API
