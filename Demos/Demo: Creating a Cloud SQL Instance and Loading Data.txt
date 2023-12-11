@@ -1,0 +1,24 @@
+# Demo: Creating a Cloud SQL Instance and Loading Data
+# https://learn.acloud.guru/course/gcp-certified-professional-data-engineer/learn/b404afd2-7ff2-5d28-27e0-e9e04743d738/71fc95c2-cc9a-bd45-0708-b91a0a1d7438/watch
+
+1. From the navigation menu on your GCP Cloud Sandbox, go to 'SQL'
+2. Click 'CREATE INSTANCE'
+3. Clik 'Choose MySQL'
+4. Instance ID: 'forumdb'
+5. Password: click 'GENERATE' and save it somewhere else
+6. Choose a Cloud SQL edition: 'Enterprise'
+7. Choose a preset for this edition. Presets can be customized later as needed: 'Sandbox'
+8. Click 'CREATE INSTANCE'
+9. Launch your Cloud Shell by clicking 'Activate Cloud Shell' at the top of the Google Cloud console
+10. Download the 'forumdb.sql' file from the RESOURCES section of the lesson to your computer and unzip it
+11. From your Cloud Shell terminal, click 'More' > 'UPLOAD FILE'
+12. Select the 'forumdb.sql' file that you just saved on your computer and click 'UPLOAD'
+13. Type 'gcloud sql connect forumdb --user=root'
+14. Type 'y' to enable the sqladmin.googleapis.com API
+15. Enter the password you generated and saved earlier for your MySQL instance
+16. Type 'CREATE DATABASE forum;'
+17. Type 'USE forum;'
+18. Type 'SOURCE forumdb.sql;'
+19. Type 'SHOW TABLES;'
+20. Type 'SELECT * FROM posts;'
+21. Delete your MySQL instance
